@@ -2,20 +2,35 @@
 
 public class Player : MonoBehaviour
 {
-
-    public Rigidbody2D rb;
+    private Rigidbody2D rb;
     private Animator anim;
-    [Header("플레이어 속성")]
-    float MoveSpeed = 10f;
-    float JumpForce = 14f;
 
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float jumpForce = 14f;
+
+    [Header("대쉬 정보")]
+    [SerializeField] private float dashSpeed = 10f;
+    [SerializeField] private float dashDuration = 2f;
+    [SerializeField] private float dashTime;
+    [SerializeField] private float dashCooldown = 4f;
+    private float dashCooldownTimer = 0f;
+
+    [Header("공격 정보")]
+    private bool isAttacking;
+    private int comboCounter;
+    private float comboTime = 0.5f;
+    private float comboTimer;
+
+
+    [Header("이동")]
+    private float xInput;
     private int facingDir = 1;
     private bool facingRight = true;
 
     [Header("Collision info")]
-    [SerializeField] private float groundCheckDistance = 1.4f;
+    [SerializeField] private float groundCheckDistance;
     [SerializeField] private LayerMask whatIsGround;
-    private bool isGrounded = true;
+    private bool isGrounded;
 
     void Start()
     {
@@ -25,42 +40,112 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        Movement();
-        KeyInput();
 
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
-        
-        AnimationController();
+        CheckInput();
+        Movement();
+        CollisionChecks();
+
+        dashTime -= Time.deltaTime;
+        dashCooldownTimer -= Time.deltaTime;
+        comboTimer -= Time.deltaTime;
+
         FlipController();
+        AnimatorControllers();
+
     }
 
-    void KeyInput()
+    public void AttackOver()
     {
-        if (Input.GetKey(KeyCode.Space))
+        isAttacking = false;
+
+        comboCounter++;
+        if (comboCounter > 2) comboCounter = 0;
+    }
+    private void StartAttackEvent()
+    {
+        if (comboTimer < 0)
+            comboCounter = 0;
+
+        isAttacking = true;
+        comboTimer = comboTime;
+    }
+    private void CollisionChecks()
+    {
+        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+    }
+
+    private void CheckInput()
+    {
+        xInput = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            if(isGrounded == true) Jump();
+            StartAttackEvent();
+
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            DashAbility();
         }
 
 
     }
 
+    private void DashAbility()
+    {
+
+        if (dashCooldownTimer < 0 && !isAttacking)
+        {
+            dashCooldownTimer = dashCooldown;
+            dashTime = dashDuration;
+        }
+    }
+
     private void Movement()
     {
-        float moveX = MoveSpeed * Input.GetAxis("Horizontal");
-        rb.linearVelocity = new Vector2(moveX, rb.linearVelocity.y);
+        if (isAttacking)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        }
+        else if (dashTime > 0)
+        {
+            rb.linearVelocity = new Vector2(facingDir * dashSpeed, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(xInput * moveSpeed, rb.linearVelocity.y);
+        }
+
+
     }
 
     private void Jump()
     {
-        rb.linearVelocity = new Vector2(rb.linearVelocityX, JumpForce);
-        
+        if (isGrounded)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
-    private void AnimationController()
-    {
-        bool isMoving = rb.linearVelocityX != 0;
-        anim.SetBool("isMoving", isMoving);
 
+    //Alt + 화살표키
+    private void AnimatorControllers()
+    {
+
+        bool isMoving = rb.linearVelocity.x != 0;
+
+
+        anim.SetFloat("yVelocity", rb.linearVelocityY);
+
+        anim.SetBool("isMoving", isMoving);
+        anim.SetBool("isGround", isGrounded);
+        anim.SetBool("isDash", dashTime > 0);
+        anim.SetBool("isAttack", isAttacking);
+        anim.SetInteger("ComboCounter", comboCounter);
     }
 
     private void Flip()
@@ -69,6 +154,8 @@ public class Player : MonoBehaviour
         facingRight = !facingRight;
         transform.Rotate(0, 180, 0);
     }
+
+
     private void FlipController()
     {
         if (rb.linearVelocityX > 0 && !facingRight)
@@ -81,8 +168,11 @@ public class Player : MonoBehaviour
         }
     }
 
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - groundCheckDistance));
     }
+
+
 }
