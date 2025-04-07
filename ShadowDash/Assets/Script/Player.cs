@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Entity
 {
-    private Rigidbody2D rb;
-    private Animator anim;
 
+    [Header("이동 정보")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 14f;
+    private float xInput;
 
     [Header("대쉬 정보")]
     [SerializeField] private float dashSpeed = 10f;
@@ -21,29 +21,17 @@ public class Player : MonoBehaviour
     private float comboTime = 0.5f;
     private float comboTimer;
 
-
-    [Header("이동")]
-    private float xInput;
-    private int facingDir = 1;
-    private bool facingRight = true;
-
-    [Header("Collision info")]
-    [SerializeField] private float groundCheckDistance;
-    [SerializeField] private LayerMask whatIsGround;
-    private bool isGrounded;
-
-    void Start()
+    protected override void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponentInChildren<Animator>();
+        base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
 
         CheckInput();
         Movement();
-        CollisionChecks();
 
         dashTime -= Time.deltaTime;
         dashCooldownTimer -= Time.deltaTime;
@@ -69,10 +57,7 @@ public class Player : MonoBehaviour
         isAttacking = true;
         comboTimer = comboTime;
     }
-    private void CollisionChecks()
-    {
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
-    }
+
 
     private void CheckInput()
     {
@@ -148,12 +133,7 @@ public class Player : MonoBehaviour
         anim.SetInteger("ComboCounter", comboCounter);
     }
 
-    private void Flip()
-    {
-        facingDir = facingDir * -1;
-        facingRight = !facingRight;
-        transform.Rotate(0, 180, 0);
-    }
+
 
 
     private void FlipController()
@@ -169,10 +149,7 @@ public class Player : MonoBehaviour
     }
 
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - groundCheckDistance));
-    }
+    
 
 
 }
