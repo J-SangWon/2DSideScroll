@@ -9,10 +9,14 @@ public class Enemy : Entity
     public int enemyMoveSpeed;
     public float idleTime;
 
-    public float playerCheckDistance;
-    public LayerMask whatIsPlayer;
 
-    public Transform playerTransform;
+    [Header("공격 정보")]
+    public float playerCheckDistance = 1.5f;
+    [SerializeField] protected LayerMask whatIsPlayer;
+    public float attackDistance;
+    public float attackCooldown;
+    public float lastTimeAttacked;
+    public float battleTime;
 
     #endregion
 
@@ -33,7 +37,6 @@ public class Enemy : Entity
         base.Start();
 
         
-        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
     protected override void Update()
@@ -46,13 +49,13 @@ public class Enemy : Entity
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
-        Gizmos.DrawWireSphere(transform.position, playerCheckDistance);
+        //Gizmos.DrawWireSphere(transform.position, playerCheckDistance);
+        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + attackDistance * facingDir, transform.position.y));
+        
     }
 
-   
+    public virtual RaycastHit2D IsPlayerDetected() => Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, playerCheckDistance, whatIsPlayer);
 
-    //public bool PlayerCheck() => Physics2D.Raycast();
-
-   
+    public virtual void AnimationFinishTrigger() => enemyStateMachine.currentEnemyState.AnimationFinishTrigger();
 
 }

@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 
-public class EnemySkeletonMove : EnemyState
+public class EnemySkeletonMove : EnemySkeletonGround
 {
-    private Enemy_Skeleton enemy;
-    public EnemySkeletonMove(Enemy _enemyBase, EnemyStateMachine _enemyStateMachine, string _animationName, Enemy_Skeleton _enemy) : base(_enemy, _enemyStateMachine, _animationName)
+    public EnemySkeletonMove(Enemy _enemyBase, EnemyStateMachine _enemyStateMachine, string _animationName, Enemy_Skeleton _enemy) : base(_enemyBase, _enemyStateMachine, _animationName, _enemy)
     {
-        this.enemy = _enemy;
     }
 
     public override void Enter()
