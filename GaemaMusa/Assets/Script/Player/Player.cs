@@ -20,6 +20,9 @@ public class Player : Entity
 
     [Header("공격 디테일")]
     public float[] attackMovement;
+    public float attackDamage = 10f;
+    public float counterAttackDuration = 0.3f;
+
 
     public float wallJumpForce = 15f;
 
@@ -36,7 +39,8 @@ public class Player : Entity
     public PlayerDashState dashState { get; private set; }
     public PlayerWallSlideState wallSlideState { get; private set; }
     public PlayerWallJump wallJump { get; private set; }
-    public PlayerPrimaryAttack primaryAttack { get; private set; }
+    public PlayerPrimaryAttack primaryAttackState { get; private set; }
+    public PlayerCounterAttackState counterAtackState { get; private set; }
     #endregion
 
 
@@ -53,7 +57,8 @@ public class Player : Entity
         dashState = new PlayerDashState(this, stateMachine, "Dash");
         wallSlideState = new PlayerWallSlideState(this, stateMachine, "WallSlide");
         wallJump = new PlayerWallJump(this, stateMachine, "Jump");
-        primaryAttack = new PlayerPrimaryAttack(this, stateMachine, "Attack");
+        primaryAttackState = new PlayerPrimaryAttack(this, stateMachine, "Attack");
+        counterAtackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
     }
     protected override void Start()
     {

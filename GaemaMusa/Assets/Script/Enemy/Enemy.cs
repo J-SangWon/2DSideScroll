@@ -18,6 +18,11 @@ public class Enemy : Entity
     public float lastTimeAttacked;
     public float battleTime;
 
+    [Header("스턴 정보")]
+    public float stunDuration = 1f;
+    public Vector2 stunDirection;
+    protected bool canBeStunned = true;
+    [SerializeField] protected GameObject counterImage;
     #endregion
 
     #region State
@@ -52,6 +57,29 @@ public class Enemy : Entity
         //Gizmos.DrawWireSphere(transform.position, playerCheckDistance);
         Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + attackDistance * facingDir, transform.position.y));
         
+    }
+
+    public virtual void OpenCounterAttackWindow()
+    {
+        canBeStunned = true;
+        counterImage.SetActive(true);
+    }
+    public virtual void CloseCounterAttackWindow()
+    {
+        canBeStunned = false;
+        counterImage.SetActive(false);
+    }
+
+    public virtual bool CanBeStunned()
+    {
+        if (canBeStunned)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public virtual RaycastHit2D IsPlayerDetected() => Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, playerCheckDistance, whatIsPlayer);

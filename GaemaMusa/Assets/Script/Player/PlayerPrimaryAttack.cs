@@ -13,12 +13,19 @@ public class PlayerPrimaryAttack : PlayerState
     public override void Enter()
     {
         base.Enter();
+        xInput = 0;
 
         if (comboCounter > 2 || Time.time >= lastTimeAttacked + comboWindow) comboCounter = 0;
         player.anim.SetInteger("ComboCounter", comboCounter);
-        player.anim.speed = 3f;
+        //player.anim.speed = 3f;
 
-        player.SetVelocity(player.attackMovement[comboCounter] * player.facingDir, rb.linearVelocityY);
+        float attackDir = player.facingDir;
+
+        if(xInput != 0)
+        {
+            attackDir = xInput;
+        }
+        player.SetVelocity(player.attackMovement[comboCounter] * attackDir, rb.linearVelocityY);
 
         stateTimer = 0.1f;
     }
