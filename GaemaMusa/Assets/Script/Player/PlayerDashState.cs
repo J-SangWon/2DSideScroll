@@ -10,6 +10,9 @@ public class PlayerDashState : PlayerState
     {
         base.Enter();
         stateTimer = player.dashDuration;
+        //아래 2줄은 동일함
+        SkillManager.instance.clone.CreateClone(player.transform); 
+        //player.skill.clone.CreateClone(player.transform);
     }
     public override void Update()
     {

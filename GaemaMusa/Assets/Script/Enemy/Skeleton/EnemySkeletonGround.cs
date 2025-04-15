@@ -13,7 +13,7 @@ public class EnemySkeletonGround : EnemyState
     public override void Enter()
     {
         base.Enter();
-        playerTransfrom = GameObject.FindGameObjectWithTag("Player").transform;
+        playerTransfrom = PlayerManager.instance.player.transform;
     }
     public override void Update()
     {

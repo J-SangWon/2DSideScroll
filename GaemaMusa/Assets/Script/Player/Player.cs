@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Threading;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class Player : Entity
@@ -9,10 +10,9 @@ public class Player : Entity
     [Header("이동 정보")]
     public float moveSpeed = 8f;
     public float jumpForce = 12f;
+
     public float dashSpeed = 15f;
     public float dashDuration = 1.5f;
-    [SerializeField] private float dashCooldown = 1;
-    private float dashUsageTimer;
     public float dashDir { get; private set; }
     
 
@@ -41,6 +41,9 @@ public class Player : Entity
     public PlayerWallJump wallJump { get; private set; }
     public PlayerPrimaryAttack primaryAttackState { get; private set; }
     public PlayerCounterAttackState counterAtackState { get; private set; }
+    public PlayerAimSwordState aimSwordState { get; private set; }
+    public PlayerCatchSwordState catchSwordState { get; private set; }
+    public SkillManager skill { get; private set; }
     #endregion
 
 
@@ -59,10 +62,14 @@ public class Player : Entity
         wallJump = new PlayerWallJump(this, stateMachine, "Jump");
         primaryAttackState = new PlayerPrimaryAttack(this, stateMachine, "Attack");
         counterAtackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
+        aimSwordState = new PlayerAimSwordState(this, stateMachine, "AimSword");
+        catchSwordState = new PlayerCatchSwordState(this, stateMachine, "CatchSword");
     }
     protected override void Start()
     {
         base.Start();
+
+        skill = SkillManager.instance;
 
         stateMachine.Initialize(idleState);
     }
@@ -89,10 +96,12 @@ public class Player : Entity
 
     private void CheckForDashInput()
     {
-        dashUsageTimer -= Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.LeftShift) && dashUsageTimer < 0)
+        if (IsWallDetected())
         {
-            dashUsageTimer = dashCooldown;
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.LeftShift) && SkillManager.instance.dash.CanUseSkill())
+        {
             dashDir = Input.GetAxisRaw("Horizontal");
             if (dashDir == 0) dashDir = facingDir;
             stateMachine.ChangeState(dashState);
