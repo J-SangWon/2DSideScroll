@@ -27,6 +27,9 @@ public class Player : Entity
     public float wallJumpForce = 15f;
 
     private float timer;
+
+    public GameObject sword; //{ get; private set; }
+    public float swordReturnKnockback = 5f;
     #endregion
 
     #region State
@@ -83,6 +86,18 @@ public class Player : Entity
         timer -= Time.deltaTime;
         CheckForDashInput();
     }
+
+    public void AssignNewSword(GameObject _newSword)
+    {
+        sword = _newSword;
+    }
+    public void CatchTheSword()
+    {
+        stateMachine.ChangeState(catchSwordState);
+        Destroy(sword);
+    }
+
+
     public IEnumerator BusyFor(float _seconds)
     {
         isBusy = true;

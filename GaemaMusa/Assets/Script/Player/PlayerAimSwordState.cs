@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerAimSwordState : PlayerState
 {
@@ -9,12 +10,11 @@ public class PlayerAimSwordState : PlayerState
     public override void Enter()
     {
         base.Enter();
+        player.SetZeroVelocity();
+        player.skill.sword.DotsActive(true);
+
     }
 
-    public override void Exit()
-    {
-        base.Exit();
-    }
 
     public override void Update()
     {
@@ -23,5 +23,16 @@ public class PlayerAimSwordState : PlayerState
         {
             stateMachine.ChangeState(player.idleState);
         }
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (player.transform.position.x > mousePosition.x && player.facingDir == 1)
+            player.Flip();
+        else if (player.transform.position.x < mousePosition.x && player.facingDir == -1)
+            player.Flip();
     }
+    public override void Exit()
+    {
+        base.Exit();
+        player.StartCoroutine("BusyFor", 0.5f);
+    }
+
 }
