@@ -47,6 +47,8 @@ public class Player : Entity
     public PlayerAimSwordState aimSwordState { get; private set; }
     public PlayerCatchSwordState catchSwordState { get; private set; }
     public SkillManager skill { get; private set; }
+    public PlayerBlackHoleState blackHoleState { get; private set; }
+    public PlayerDeadState deadState { get; private set; }
     #endregion
 
 
@@ -67,6 +69,8 @@ public class Player : Entity
         counterAtackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
         aimSwordState = new PlayerAimSwordState(this, stateMachine, "AimSword");
         catchSwordState = new PlayerCatchSwordState(this, stateMachine, "CatchSword");
+        blackHoleState = new PlayerBlackHoleState(this, stateMachine, "Idle");
+        deadState = new PlayerDeadState(this, stateMachine, "Die");
     }
     protected override void Start()
     {
@@ -81,10 +85,15 @@ public class Player : Entity
     {
         base.Update();
         stateMachine.currentState.Update();
-        FlipController();
 
+        FlipController();
         timer -= Time.deltaTime;
         CheckForDashInput();
+
+        if(Input.GetKeyDown(KeyCode.H))
+        {
+            skill.crystal.CanUseSkill();
+        }
     }
 
     public void AssignNewSword(GameObject _newSword)
@@ -95,6 +104,11 @@ public class Player : Entity
     {
         stateMachine.ChangeState(catchSwordState);
         Destroy(sword);
+    }
+
+    public void ExitBlackHoleAbillity()
+    {
+        stateMachine.ChangeState(airState);
     }
 
 

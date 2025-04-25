@@ -1,14 +1,16 @@
 ﻿
+using System.Collections;
 using UnityEngine;
 
 public class Enemy : Entity
 {
-  
+
     #region 정보
     [Header("이동 정보")]
-    public int enemyMoveSpeed;
+    public float enemyMoveSpeed;
     public float idleTime;
-
+    public float battleTime;
+    private float defaultMoveSpeed;
 
     [Header("공격 정보")]
     public float playerCheckDistance = 1.5f;
@@ -16,7 +18,6 @@ public class Enemy : Entity
     public float attackDistance;
     public float attackCooldown;
     public float lastTimeAttacked;
-    public float battleTime;
 
     [Header("스턴 정보")]
     public float stunDuration = 1f;
@@ -25,39 +26,60 @@ public class Enemy : Entity
     [SerializeField] protected GameObject counterImage;
     #endregion
 
-    #region State
+    #region 
     public EnemyStateMachine enemyStateMachine { get; private set; }
-    
+    public string lastAnimBoolName { get; private set; }
+
     #endregion
 
     protected override void Awake()
     {
         base.Awake();
         enemyStateMachine = new EnemyStateMachine();
-        
+        defaultMoveSpeed = enemyMoveSpeed;
 
     }
     protected override void Start()
     {
         base.Start();
 
-        
+
     }
 
     protected override void Update()
     {
         base.Update();
         enemyStateMachine.currentEnemyState.Update();
-        
+
     }
 
-    protected override void OnDrawGizmos()
+    public virtual void AssignLastAnimBoolName(string _animBoolName)
     {
-        base.OnDrawGizmos();
-        //Gizmos.DrawWireSphere(transform.position, playerCheckDistance);
-        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + attackDistance * facingDir, transform.position.y));
-        
+        lastAnimBoolName = _animBoolName;
     }
+    public virtual void FreezeTime(bool _timeFrozen)
+    {
+        if (_timeFrozen)
+        {
+            enemyMoveSpeed = 0;
+            anim.speed = 0;
+        }
+        else
+        {
+            enemyMoveSpeed = defaultMoveSpeed;
+            anim.speed = 1;
+        }
+    }
+    protected virtual IEnumerator FreezeTimerFor(float _seconds)
+    {
+        FreezeTime(true);
+
+        yield return new WaitForSeconds(_seconds);
+
+        FreezeTime(false);
+    }
+
+
 
     public virtual void OpenCounterAttackWindow()
     {
@@ -81,9 +103,19 @@ public class Enemy : Entity
             return false;
         }
     }
-
+    #region Gizmos
     public virtual RaycastHit2D IsPlayerDetected() => Physics2D.Raycast(wallCheck.position, Vector2.right * facingDir, playerCheckDistance, whatIsPlayer);
 
     public virtual void AnimationFinishTrigger() => enemyStateMachine.currentEnemyState.AnimationFinishTrigger();
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+        //Gizmos.DrawWireSphere(transform.position, playerCheckDistance);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x + attackDistance * facingDir, transform.position.y));
+
+    }
+    #endregion
+
 
 }

@@ -17,7 +17,10 @@ public class PlayerGroundedState : PlayerState
         base.Update();
 
         //if (Input.GetKeyDown(KeyCode.LeftShift)) stateMachine.ChangeState(player.dashState);
+        if(Input.GetKeyDown(KeyCode.Z)) stateMachine.ChangeState(player.blackHoleState);
+
         if (Input.GetKeyDown(KeyCode.Mouse0)) stateMachine.ChangeState(player.primaryAttackState);
+        
         if(Input.GetKeyDown(KeyCode.Mouse1) && HasNotSword()) stateMachine.ChangeState(player.aimSwordState);
 
         if (!player.IsGroundDetected()) stateMachine.ChangeState(player.airState);

@@ -26,6 +26,9 @@ public class Entity : MonoBehaviour
     public Animator anim { get; private set; }
     public Rigidbody2D rb { get; private set; }
     public EntityFX fx { get; private set; }
+    public SpriteRenderer sr { get; private set; }
+    public CircleCollider2D cd { get; private set; }
+    public CharacterStats stats { get; private set; }
     #endregion
 
     [Header("방향 정보")]
@@ -38,8 +41,11 @@ public class Entity : MonoBehaviour
     protected virtual void Start()
     {
         fx = GetComponent<EntityFX>();
-        anim = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponentInChildren<Animator>();
+        sr = GetComponentInChildren<SpriteRenderer>();
+        stats = GetComponent<CharacterStats>();
+        cd = GetComponent<CircleCollider2D>();
     }
 
     protected virtual void Update()
@@ -55,11 +61,10 @@ public class Entity : MonoBehaviour
         anim.SetTrigger("Death");
         
     }
-    public virtual void Damage(float damage)
+    public virtual void DamageEffect()
     {
         fx.StartCoroutine("HitEffect");
         StartCoroutine(HitKnockBack());
-        Debug.Log("Damage: " + damage);
     }
 
    protected virtual IEnumerator HitKnockBack()
@@ -104,4 +109,17 @@ public class Entity : MonoBehaviour
         Gizmos.DrawLine(wallCheck.position, new Vector3(wallCheck.position.x + wallCheckDistance, wallCheck.position.y));
         Gizmos.DrawWireSphere(attackCheck.position, attackCheckRadius);
     }
+
+    public void MakeTransparent(bool _transparent)
+    {
+        if(_transparent)
+        {
+            sr.color = Color.clear;
+        }
+        else
+        {
+            sr.color = Color.white;
+        }
+    }
+
 }

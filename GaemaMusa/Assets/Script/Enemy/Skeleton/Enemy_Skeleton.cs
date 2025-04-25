@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Xml;
 
 public class Enemy_Skeleton : Enemy
 {
@@ -9,6 +10,7 @@ public class Enemy_Skeleton : Enemy
     public EnemySkeletonBattle enemyBattle { get; private set; }
     public EnemySkeletonAttack enemyAttack { get; private set; }
     public EnemySkeletonStun enemyStun { get; private set; }
+    public EnemySkeletonDeadState enemyDead { get; private set; }
     #endregion
 
     #region 정보
@@ -25,6 +27,7 @@ public class Enemy_Skeleton : Enemy
         enemyBattle = new EnemySkeletonBattle(this, enemyStateMachine, "Move", this);
         enemyAttack = new EnemySkeletonAttack(this, enemyStateMachine, "Attack", this);
         enemyStun = new EnemySkeletonStun(this, enemyStateMachine, "Stun", this);
+        enemyDead = new EnemySkeletonDeadState(this, enemyStateMachine, "Idle", this);
     }
 
     protected override void Start()
@@ -62,6 +65,13 @@ public class Enemy_Skeleton : Enemy
             return false;
         }
     }
+
+    public override void Death()
+    {
+        base.Death();
+        enemyStateMachine.ChangeState(enemyDead);
+    }
+
 
 
 }

@@ -4,7 +4,7 @@ public class PlayerAnimationTrigger : MonoBehaviour
 {
 
     private Player player => GetComponentInParent<Player>();
-    
+
     private void AnimationTrigger()
     {
         player.AnimationTrigger();
@@ -18,7 +18,10 @@ public class PlayerAnimationTrigger : MonoBehaviour
         {
             if (collider.GetComponent<Enemy>() != null)
             {
-                collider.GetComponent<Enemy>().Damage(player.attackDamage);
+                EnemyStats _target = collider.GetComponent<EnemyStats>();
+                player.stats.DoDamage(_target);
+
+
             }
         }
     }
